@@ -50,7 +50,7 @@ function [dat]=calculateCurrentPDF(mat, E, T, S, dt)
     
     %this part generates a random sample of currents for each energy band
     %and calculates the statistical properties of the entire current
-    N=2.5e4;
+    N=1e4;
     %reduced the original size of 1e5 to reduce run time. this still gives 
     %a good enough consistancy of results on the mean current (relative 
     %error about 1e3 compared to 0.5e3).

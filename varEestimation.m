@@ -56,36 +56,20 @@ function [beta_est,beta_err]=varEestimation(sigI,sigE,E0,I0,l,ref_data)
                 abs(beta_est-ones(2,1)*ref_data.beta_range(2)));
             beta_est=beta_est(dis==min(dis));%return the value closest to the range 
             warning('both beta solutions are outside the desired range. returning the solution closest to the range.');
-            %TODO throw warning
         elseif(sum(inside)==1)
             beta_est=beta_est(logical(inside));%return the value inside the range
         else%both are inside
             warning('both beta solutions are inside the desired range. returning both solutions.');
             %TODO add case
         end
+    elseif(isempty(beta_est))
+        warning('could not calculate an estimation for beta, returning closest possible value')
+        beta_est=double(solve(diff(eq)==0));
     end
     
     %error estimation
     err=estimateErr(l,sigI,sigE,I0);%estimated error in eta_ex
-    if(length(beta_est)==1)
-        beta_p=double(vpasolve(eq==eta_ex+err,b,beta_est));
-        beta_m=double(vpasolve(eq==eta_ex-err,b,beta_est));
-        beta_p=beta_p(min(abs(beta_p-beta_est))==abs(beta_p-beta_est));
-        beta_m=beta_m(min(abs(beta_m-beta_est))==abs(beta_m-beta_est));
-        beta_err=abs(beta_p-beta_m)/2;
-        %just as there are 2 beta solutions, there are two solutions for
-        %the beta error.
-    else
-        beta_p1=double(vpasolve(eq==eta_ex+err,b,beta_est(1)));
-        beta_m1=double(vpasolve(eq==eta_ex-err,b,beta_est(1)));
-        beta_p1=beta_p1(min(abs(beta_p1-beta_est))==abs(beta_p1-beta_est));
-        beta_m1=beta_m1(min(abs(beta_m1-beta_est))==abs(beta_m1-beta_est));
-        beta_p2=double(vpasolve(eq==eta_ex+err,b,beta_est(2)));
-        beta_m2=double(vpasolve(eq==eta_ex-err,b,beta_est(2)));
-        beta_p2=beta_p2(min(abs(beta_p2-beta_est))==abs(beta_p2-beta_est));
-        beta_m2=beta_m2(min(abs(beta_m2-beta_est))==abs(beta_m2-beta_est));
-        beta_err=[abs(beta_p1-beta_m1)/2;abs(beta_p2-beta_m2)/2];
-    end
+    beta_err=abs(err./double(subs(diff(eq),beta_est)));
 end
 
 %this function estimates the error of sigI/(sigE*I0) based on the supplied parameters

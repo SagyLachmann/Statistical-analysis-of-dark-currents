@@ -30,8 +30,8 @@ function data=createVarEref(type, params, beta_range, E0_range)
             fun_type=3;
     end
 
-    n_b=11;%number of beta values to use in the range
-    rep_fac=7;%number of E0 samples
+    n_b=7;%number of beta values to use in the range
+    rep_fac=10;%number of E0 samples
     N=5*rep_fac;%5 repeating measurements for each unique E0 values
     %sigmaE is the 'magnitude' of variation - in the gaussian case it's the
     %std and in the sine and saw cases it's the amplitude of the
@@ -49,7 +49,7 @@ function data=createVarEref(type, params, beta_range, E0_range)
     wb=waitbar(prog,['E var refrence generation at ',num2str(prog*100),'%']);
 
     T=293;
-    S=(1)^2;%tunneling surface in cm^2. checked and it's not affecting the values
+    S=(1)^2;%tunneling surface in cm^2. This value does not affect results.
     
     m=params(end-1);%number of points to use for estimation
     dt=params(end);%integration time
@@ -97,6 +97,11 @@ function data=createVarEref(type, params, beta_range, E0_range)
     close(wb)
     
     data.type=type;
+    data.m=m;
+    data.dt=dt;
+    data.E0_range=E0_range*100;
+    data.beta_range=beta_range;
+    data.E0_range=E0_range*100;
     data.meanE=meanE;
     data.meanI=meanI;
     data.sigE=sigE;
@@ -109,7 +114,7 @@ function data=createVarEref(type, params, beta_range, E0_range)
     b=data.beta(:);
     y=data.sigI(:)./(data.sigE(:).*data.meanI(:));
     
-    [f,g]= fit([E0,b],y,'poly52');
+    [f,g]= fit([E0,b],y,'poly53');
     data.f=f;
     data.g=g;
     
