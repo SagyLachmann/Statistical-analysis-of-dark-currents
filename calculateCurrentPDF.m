@@ -7,8 +7,12 @@ function [dat]=calculateCurrentPDF(mat, E, T, S, dt)
 %E - E field strength in V/cm
 %T - temperature in kelvin
 %S - The surface area of the emitter in cm^2
-%dt - the time resolution of the measurement.
+%dt - the time resolution of the measurement in sec (default 1e-6)
 
+    if(~exist('dt','var'))
+        dt=1e-6;
+    end
+    
     %load from mats file
     temp=load('./mats.mat');
     mats=temp.mats;
@@ -43,7 +47,7 @@ function [dat]=calculateCurrentPDF(mat, E, T, S, dt)
     D([false,(D(2:end)-D(1:end-1)<0)])=1;
     j=n.*D.*fac;
     mu=j*dx;%the mean current of each energy value 
-    sigma=sqrt((1-D).*mu/S)*S*dt^(-0.5);%the std of each energy value
+    sigma_sq=e*(1-D).*mu*dt^(-1);%the variance of each energy value
     %the dx factor is because j is A/cm^2/eV (current density per EV)
     %the sqrt(dx) is for the same reason but std doesn't sum linearly, the
     %variance does.
@@ -51,10 +55,7 @@ function [dat]=calculateCurrentPDF(mat, E, T, S, dt)
     %this part generates a random sample of currents for each energy band
     %and calculates the statistical properties of the entire current
     N=1e4;
-    %reduced the original size of 1e5 to reduce run time. this still gives 
-    %a good enough consistancy of results on the mean current (relative 
-    %error about 1e3 compared to 0.5e3).
-    dat=randn(N,length(mu)).*repmat(sigma,N,1)+repmat(mu,N,1);
+    dat=randn(N,length(mu)).*repmat(sqrt(sigma_sq),N,1)+repmat(mu,N,1);
     
 end
 
