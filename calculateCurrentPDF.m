@@ -48,12 +48,9 @@ function [dat]=calculateCurrentPDF(mat, E, T, S, dt)
     j=n.*D.*fac;
     mu=j*dx;%the mean current of each energy value 
     sigma_sq=e*(1-D).*mu*dt^(-1);%the variance of each energy value
-    %the dx factor is because j is A/cm^2/eV (current density per EV)
-    %the sqrt(dx) is for the same reason but std doesn't sum linearly, the
-    %variance does.
     
     %this part generates a random sample of currents for each energy band
-    %and calculates the statistical properties of the entire current
+    %that can be later summed for the "measured" current
     N=1e4;
     dat=randn(N,length(mu)).*repmat(sqrt(sigma_sq),N,1)+repmat(mu,N,1);
     
